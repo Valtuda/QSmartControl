@@ -16,11 +16,7 @@ state_dict = {\
 class LaserSettings:
     def __init__(self,admin_mode = False,ip="169.254.0.1",port=10001,timeout=3):
         self.lasercommunication = LaserCommunication.LaserCommunication(ip,port,timeout)
-        self.admin_mode = admin_mode
-        
-        ## Get firmware settings
-        self.powersupply_ver = self.__get_PSVER()
-        self.laserbrain_ver  = self.__get_LVERS()
+        self.admin_mode = admin_mode 
         
     def get_cooling_temp(self):
         return self.__get_CGTEMP()
@@ -45,6 +41,20 @@ class LaserSettings:
         
     def disable_qsw(self):
         return self.__QS_STOP()
+    @property
+    def cooling_temp(self):
+        """Returns the temprature of the cooling water."""
+        return self.__get_CGTEMP()
+    
+    @property
+    def powersupply_version(self):
+        """Returns the version of the powersupply."""
+        return self.__get_PSVER()
+
+    @property
+    def laserbrain_version(self):
+        """Return the version of the laser firmware board(?)"""
+        return self.__get_LVERS()
 
     @property
     def state(self):
