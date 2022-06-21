@@ -249,7 +249,7 @@ class LaserSettings:
             self.__set_QSPAR3(shots)
 
         elif mode == "F/N Mode":
-            if len(mode_kwargs) != 2:
+            if len(mode_kwargs) != 1:
                 raise ValueError("Setting mode to F/N requires 1 option. ('divider')")
             if "divider" not in mode_kwargs:
                 raise ValueError("Must set number of shots ('divider') in F/N mode.")
