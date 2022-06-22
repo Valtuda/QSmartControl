@@ -19,7 +19,67 @@ class LaserSettings:
     def __init__(self,admin_mode = False,ip="169.254.0.1",port=10001,timeout=3):
         self.lasercommunication = LaserCommunication.LaserCommunication(ip,port,timeout)
         self.admin_mode = admin_mode 
-        
+
+    def to_dict(self):
+        """Return a description of the object as a dictionary."""
+        _dict = dict()
+
+        _dict["cooling_temp"] = self.cooling_temp
+        _dict["powersupply_version"] = self.powersupply_version
+        _dict["laserbrain_version"] = self.laserbrain_version
+        _dict["flashlamp_voltage"] = self.flashlamp_voltage
+        _dict["flashlamp_pulse_width"] = self.flashlamp_pulse_width
+        _dict["flashlamp_trigger"] = self.flashlamp_trigger
+        _dict["qswitch_trigger"] = self.qswitch_trigger
+        _dict["mode"] = self.mode
+        if self.mode == "Burst":
+            _dict["cycles"] = self.__get_QSPAR1()
+            _dict["total_length"] = self.__get_QSPAR2()
+            _dict["shots"]  = self.__get_QSPAR3()
+        elif self.mode == "F/N Mode":
+            _dict["divider"] = self.__get_QSPAR2()
+        else: #Scan
+            _dict["total_length"] = self.__get_QSPAR2()
+            _dict["shots"] = self.__get_QSPAR3()
+        _dict["qspar1"]  = self.__get_QSPAR1()
+        _dict["qspar2"]  = self.__get_QSPAR2()
+        _dict["qspar3"]  = self.__get_QSPAR3()
+        _dict["qswitch_delay"] = self.qswitch_delay
+        _dict["qswitch_sync_delay"] self.qswitch_sync_delay
+
+        return _dict
+
+    def from_dict(self,_dict,admin=False):
+        """Set settings from dict, will not set the "admin" settings unless specified."""
+
+        # Only non-admin thing is the qswitch mode.
+
+        if "mode" in _dict:
+            if _dict["mode"] == "Burst":
+                try:
+                    self.set_mode("Burst", {"cycles": int(_dict["cycles"]), 
+                                            "total_length": int(_dict["total_length"]),
+                                            "shots": int(_dict["shots"])}
+                except:
+                    raise ValueError("Error setting mode to Burst, missing parameters. (Required cycles, total_length, shots.)")
+
+            elif _dict["mode"] == "Scan":
+                try:
+                    self.set_mode("Scan", {"total_length": int(_dict["total_length"]),
+                                            "shots": int(_dict["shots"])}
+                except:
+                    raise ValueError("Error setting mode to Scan, missing parameters. (Required total_length, shots.)")
+
+            elif _dict["mode"] == "F/N Mode":
+                try:
+                    self.set_mode("F/N Mode", {"divider": int(_dict["divider"])}
+                except:
+                    raise ValueError("Error setting mode to F/N Mode, missing parameters. (Required divider.)")
+
+        if admin:
+            raise Exception("This feature has not yet been implemented.")
+
+
     def get_cooling_temp(self):
         return self.__get_CGTEMP()
         
@@ -43,6 +103,7 @@ class LaserSettings:
         
     def disable_qsw(self):
         return self.__QS_STOP()
+
     @property
     def cooling_temp(self):
         """Returns the temprature of the cooling water."""
@@ -87,8 +148,8 @@ class LaserSettings:
         return self.__get_LPW()
 
     @flashlamp_pulse_width.setter
-    def flashlamp_voltage(self,pulse_width):
-        if isinstance(voltage,int):
+    def flashlamp_pulse_width(self,pulse_width):
+        if isinstance(pulse_width,int):
             return self.__set_LPW(pulse_width)
         else:
             raise ValueError("Value must be an integer.")
