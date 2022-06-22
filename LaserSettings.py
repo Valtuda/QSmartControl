@@ -41,11 +41,8 @@ class LaserSettings:
         else: #Scan
             _dict["total_length"] = self.__get_QSPAR2()
             _dict["shots"] = self.__get_QSPAR3()
-        _dict["qspar1"]  = self.__get_QSPAR1()
-        _dict["qspar2"]  = self.__get_QSPAR2()
-        _dict["qspar3"]  = self.__get_QSPAR3()
         _dict["qswitch_delay"] = self.qswitch_delay
-        _dict["qswitch_sync_delay"] self.qswitch_sync_delay
+        _dict["qswitch_sync_delay"] = self.qswitch_sync_delay
 
         return _dict
 
@@ -54,25 +51,32 @@ class LaserSettings:
 
         # Only non-admin thing is the qswitch mode.
 
+        if "qswitch_trigger" in _dict:
+            self.qswitch_trigger = _dict["qswitch_trigger"]
+
+        if "flashlamp_trigger" in _dict:
+            self.flashlamp_trigger = _dict["flashlamp_trigger"]
+
+
         if "mode" in _dict:
             if _dict["mode"] == "Burst":
                 try:
                     self.set_mode("Burst", {"cycles": int(_dict["cycles"]), 
                                             "total_length": int(_dict["total_length"]),
-                                            "shots": int(_dict["shots"])}
+                                            "shots": int(_dict["shots"])})
                 except:
                     raise ValueError("Error setting mode to Burst, missing parameters. (Required cycles, total_length, shots.)")
 
             elif _dict["mode"] == "Scan":
                 try:
                     self.set_mode("Scan", {"total_length": int(_dict["total_length"]),
-                                            "shots": int(_dict["shots"])}
+                                            "shots": int(_dict["shots"])})
                 except:
                     raise ValueError("Error setting mode to Scan, missing parameters. (Required total_length, shots.)")
 
             elif _dict["mode"] == "F/N Mode":
                 try:
-                    self.set_mode("F/N Mode", {"divider": int(_dict["divider"])}
+                    self.set_mode("F/N Mode", {"divider": int(_dict["divider"])})
                 except:
                     raise ValueError("Error setting mode to F/N Mode, missing parameters. (Required divider.)")
 
