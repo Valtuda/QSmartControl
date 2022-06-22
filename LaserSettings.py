@@ -49,7 +49,7 @@ class LaserSettings:
 
         return _dict
 
-    def from_dict(self,_dict,admin=False):
+    def settings_from_dict(self,_dict,admin=False):
         """Set settings from dict, will not set the "admin" settings unless specified."""
 
         # Only non-admin thing is the qswitch mode.
