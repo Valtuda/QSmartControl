@@ -1,6 +1,11 @@
 # QSmartControl, Copyright Jasper Smits, 2022, released under MIT License
 
 from .LaserCommunication import LaserCommunication
+from threading import Thread, Lock
+from time import sleep
+
+# It seems an undocumented feature of the laser is that it will turn off when the connection is not kept alive.
+# We will just make a "keep alive" thread, and to make sure that it doesn't interfere with other I/O, a mutex to go with it.
 
 state_dict = {\
               0: "Boot Fault",
@@ -16,9 +21,23 @@ state_dict = {\
               }
 
 class LaserSettings:
-    def __init__(self,admin_mode = False,ip="169.254.0.1",port=10001,timeout=3):
+    def __init__(self,admin_mode = False,ip="169.254.0.1",port=10001,timeout=3,keep_alive=3):
         self.lasercommunication = LaserCommunication(ip,port,timeout)
-        self.admin_mode = admin_mode 
+        self.admin_mode = admin_mode
+
+        # Threading/keep alive stuff
+        self.mutex = Lock()
+        self.keep_alive_time = keep_alive
+        self.keep_alive_thread = Thread(target=self.keep_alive_loop)
+#        self.keep_alive_thread.start()
+
+    def keep_alive_loop(self):
+        while True:
+            print("Trying to acquire mutex in keep alive thread.")
+            with self.mutex:
+                self.status #Just querying this will push a message to the laser.
+
+            sleep(self.keep_alive_time)
 
     @property
     def ready_for_flashlamp(self):
@@ -64,7 +83,6 @@ class LaserSettings:
 
         if "flashlamp_trigger" in _dict:
             self.flashlamp_trigger = _dict["flashlamp_trigger"]
-
 
         if "mode" in _dict:
             if _dict["mode"] == "Burst":
@@ -120,7 +138,6 @@ class LaserSettings:
     def cooling_temp(self):
         """Returns the temprature of the cooling water."""
         return self.__get_CGTEMP()
-    
     @property
     def powersupply_version(self):
         """Returns the version of the powersupply."""
@@ -349,7 +366,16 @@ class LaserSettings:
             pass
         else:
             raise ValueError('Value of "mode" must be "Burst", "F/N Mode" or "Scan".')
-    
+   
+    @property
+    def status(self):
+        """Returns the status string."""
+        return self.__get_STATUS()
+
+    def transfer_control_to_QTouch(self):
+        self.__set("SSWITCH 1")
+        del self
+
     @property
     def qswitch_delay(self):
         """Q-Switch delay in ns"""
@@ -382,20 +408,33 @@ class LaserSettings:
     ## Communication commands.
     def __get(self,command):
         try:
-            return self.lasercommunication.send_and_recv(command)
+            with self.mutex:
+                msg = self.lasercommunication.send_and_recv(command)
+
+            return msg
         except:
             raise OSError ## Polish this
         
     def __set(self,command):
         try:
-            response = self.lasercommunication.send_and_recv(command)
+            with self.mutex:
+                response = self.lasercommunication.send_and_recv(command)
+
             if "ERROR" not in response:
                 return 0
             else:
                 raise IOError ## Polish this
         except:
             raise IOError ## Polish this
-            
+    
+    
+    ## System commands
+    def __get_STATUS(self):
+        full_response = self.__get("STATUS")
+        if "ERROR" in full_response:
+            raise IOError ## Flesh this out later
+        return full_response
+
     ## System commands
     def __get_PSVER(self):
         full_response = self.__get("PSVERS")

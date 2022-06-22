@@ -33,6 +33,8 @@ class LaserCommunication:
         We read up to the first line break. If the message doesn't contain "ERROR", we have to read to another line break."""
         message = self.tn.read_until(b"\n")
 
+        print(message)
+
         if b"ERROR" in message or b"OK" in message:
             ## If there is an error in the message, we can only read one line.
             pass
