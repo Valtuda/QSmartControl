@@ -1,6 +1,6 @@
 # QSmartControl, Copyright Jasper Smits, 2022, released under MIT License
 
-import .LaserCommunication
+from .LaserCommunication import LaserCommunication
 
 state_dict = {\
               0: "Boot Fault",
@@ -17,7 +17,7 @@ state_dict = {\
 
 class LaserSettings:
     def __init__(self,admin_mode = False,ip="169.254.0.1",port=10001,timeout=3):
-        self.lasercommunication = LaserCommunication.LaserCommunication(ip,port,timeout)
+        self.lasercommunication = LaserCommunication(ip,port,timeout)
         self.admin_mode = admin_mode 
 
     def to_dict(self):
