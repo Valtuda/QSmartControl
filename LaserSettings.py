@@ -1,6 +1,6 @@
 # QSmartControl, Copyright Jasper Smits, 2022, released under MIT License
 
-import LaserCommunication
+import .LaserCommunication
 
 state_dict = {\
               0: "Boot Fault",
