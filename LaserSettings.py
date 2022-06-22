@@ -20,6 +20,14 @@ class LaserSettings:
         self.lasercommunication = LaserCommunication(ip,port,timeout)
         self.admin_mode = admin_mode 
 
+    @property
+    def ready_for_flashlamp(self):
+        return True if self.state == 2 else False
+
+    @property
+    def ready_for_qswitch(self):
+        pass    
+
     def to_dict(self):
         """Return a description of the object as a dictionary."""
         _dict = dict()
@@ -444,7 +452,7 @@ class LaserSettings:
         full_response = self.__get("STATE")
         if "ERROR" in full_response:
             raise IOError ## Flesh this out later
-        state       = int(full_response.split("STATE ")[1])
+        state       = int(full_response.split("STATE = ")[1])
         if as_string:
             return state_dict[state]
         else:
