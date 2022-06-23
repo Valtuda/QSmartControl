@@ -39,10 +39,12 @@ class LaserSettings:
     @property
     def ready_for_flashlamp(self):
         return True if self.state == 2 else False
+        # Note that we will probably get a better result here if we look at STATUS, but I don't want to spend time parsing it.
 
     @property
     def ready_for_qswitch(self):
-        pass    
+        return True if self.state == 5 else False
+        # Note that we will probably get a better result here if we look at STATUS, but I don't want to spend time parsing it.
 
     def to_dict(self):
         """Return a description of the object as a dictionary."""
