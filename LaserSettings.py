@@ -29,14 +29,11 @@ class LaserSettings:
         self.mutex = Lock()
         self.keep_alive_time = keep_alive
         self.keep_alive_thread = Thread(target=self.keep_alive_loop)
-#        self.keep_alive_thread.start()
+        self.keep_alive_thread.start()
 
     def keep_alive_loop(self):
         while True:
-            print("Trying to acquire mutex in keep alive thread.")
-            with self.mutex:
-                self.status #Just querying this will push a message to the laser.
-
+            self.status 
             sleep(self.keep_alive_time)
 
     @property

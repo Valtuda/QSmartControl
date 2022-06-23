@@ -8,11 +8,13 @@ class LaserCommunication:
 
     This class was designed with the QSmart 450 in mind, but might work for other lasers."""
 
-    def __init__(self,ip,port,timeout):
+    def __init__(self,ip,port,timeout,debug_mode = False):
         """
         Initializes the telnet connection. Takes ip, port and timeout keywords to be passed to telnet.
         """
         
+        self.debug_mode = debug_mode
+
         ## Initialize the telnet object
         self.tn = telnetlib.Telnet(ip,port,timeout)
 
@@ -32,8 +34,9 @@ class LaserCommunication:
 
         We read up to the first line break. If the message doesn't contain "ERROR", we have to read to another line break."""
         message = self.tn.read_until(b"\n")
-
-        print(message)
+        
+        if self.debug_mode:
+            print(message)
 
         if b"ERROR" in message or b"OK" in message:
             ## If there is an error in the message, we can only read one line.
