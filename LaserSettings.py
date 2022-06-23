@@ -144,7 +144,7 @@ class LaserSettings:
         """Status of the qswitch."""
         msg = self.__get("QSW")
         msg = msg.split("QSW = ")[1]
-        return bool(msg)
+        return bool(int(msg))
 
     @property
     def cooling_temp(self):
