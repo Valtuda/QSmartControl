@@ -26,13 +26,19 @@ class LaserSettings:
         self.admin_mode = admin_mode
 
         # Threading/keep alive stuff
+        self.__running = True
+
         self.mutex = Lock()
         self.keep_alive_time = keep_alive
         self.keep_alive_thread = Thread(target=self.keep_alive_loop)
         self.keep_alive_thread.start()
 
+    def join_keep_alive_thread(self):
+        self.__running = False
+        self.keep_alive_thread.join()
+
     def keep_alive_loop(self):
-        while True:
+        while self.__running:
             self.status 
             sleep(self.keep_alive_time)
 
@@ -132,6 +138,13 @@ class LaserSettings:
         
     def disable_qsw(self):
         return self.__QS_STOP()
+
+    @property
+    def qsw(self):
+        """Status of the qswitch."""
+        msg = self.__get("QSW")
+        msg = msg.split("QSW = ")[1]
+        return bool(msg)
 
     @property
     def cooling_temp(self):
