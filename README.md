@@ -1,6 +1,8 @@
 # QSmartControl
 A Python implementation of the Quantel Q-Smart laser controls.
 
+*Note: I noticed telnetlib is deprecated. I will get around to rewriting this at some point, but until then you're welcome to fork or suggest changes.*
+
 # What does it do?
 This repo serves to provide a Python package to expose the Q-Smart laser controls through easily accessible interface, so no direct commands to the interface have to be given.
 
